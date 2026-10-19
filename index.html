@@ -3,353 +3,632 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>家庭一周菜单</title>
+  <title>本周菜单</title>
   <style>
     :root {
-      --bg: #faf9f7;
+      --bg: #f5f3f0;
       --card: #ffffff;
       --primary: #e07a5f;
-      --primary-light: #f4e8e4;
+      --primary-light: #fdf0ec;
       --accent: #3d405b;
-      --text: #2d2d2d;
-      --muted: #888;
-      --border: #eee;
-      --radius: 12px;
+      --text: #333;
+      --muted: #aaa;
+      --border: #e5e0da;
+      --soup: #d35400;
+      --main: #27ae60;
+      --veg: #2980b9;
+      --thursday-bg: #fffbf0;
+      --thursday-border: #f39c12;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
     body {
-      font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-family: -apple-system, 'PingFang SC', sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px 80px;
+      min-height: 100vh;
+      padding-bottom: 90px;
     }
+
+    /* ── Header ── */
     .header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 20px 14px;
       text-align: center;
-      margin-bottom: 32px;
     }
     .header h1 {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 6px;
+      letter-spacing: 0.02em;
     }
     .header p {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
+      margin-top: 4px;
     }
-    .section-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--accent);
-      margin: 28px 0 12px;
-      padding-left: 12px;
-      border-left: 3px solid var(--primary);
-    }
-    .category-tabs {
+
+    /* ── Week Banner ── */
+    .week-banner {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
+      gap: 6px;
+      padding: 14px 16px 10px;
+      overflow-x: auto;
     }
-    .tab-btn {
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border);
+    .day-tab {
+      flex: 1;
+      min-width: 60px;
+      text-align: center;
+      padding: 9px 6px;
+      border-radius: 10px;
       background: var(--card);
-      font-size: 13px;
+      border: 1.5px solid var(--border);
       cursor: pointer;
-      color: var(--muted);
-      transition: all 0.2s;
+      transition: all 0.18s;
+      user-select: none;
     }
-    .tab-btn.active {
+    .day-tab.active {
       background: var(--primary);
+      border-color: var(--primary);
       color: #fff;
+    }
+    .day-tab.thursday {
+      border-color: var(--thursday-border);
+    }
+    .day-tab.active.thursday {
+      background: #f39c12;
+      border-color: #f39c12;
+    }
+    .day-tab .day-num {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .day-tab .day-label {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    /* ── Day Detail ── */
+    .day-detail {
+      padding: 0 16px 16px;
+    }
+    .day-card {
+      background: var(--card);
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+    }
+    .day-card.thursday {
+      border-color: var(--thursday-border);
+      background: var(--thursday-bg);
+    }
+    .day-card.confirmed {
       border-color: var(--primary);
     }
-    .category-panel {
-      display: none;
-    }
-    .category-panel.active {
-      display: block;
-    }
-    .dish-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 10px;
-    }
-    .dish-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 12px;
-      font-size: 13px;
-      border: 1px solid var(--border);
-      cursor: default;
-      transition: box-shadow 0.2s;
-    }
-    .dish-card:hover {
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    }
-    .dish-card .emoji {
-      font-size: 18px;
-      margin-bottom: 4px;
-    }
-    .dish-card .name {
-      font-weight: 600;
-      color: var(--accent);
-      font-size: 13px;
-    }
-    .week-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12.5px;
-      background: var(--card);
-      border-radius: var(--radius);
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .week-table th {
-      background: var(--primary);
-      color: #fff;
-      padding: 10px 8px;
-      text-align: left;
-      font-weight: 600;
-    }
-    .week-table td {
-      padding: 10px 8px;
+
+    .day-card-header {
+      padding: 14px 16px 12px;
       border-bottom: 1px solid var(--border);
-      vertical-align: top;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .week-table tr:last-child td { border-bottom: none; }
-    .week-table .day { font-weight: 700; color: var(--accent); white-space: nowrap; }
-    .week-table .note { color: var(--muted); font-size: 11px; margin-top: 3px; }
-    .week-table .soup { color: #c0392b; }
-    .week-table .main-dish { color: #27ae60; }
-    .week-table .veggie { color: #2980b9; }
-    .week-table tr:nth-child(4) td { background: #fef9e7; }
-    .tips-card {
-      background: var(--primary-light);
-      border-radius: var(--radius);
-      padding: 16px;
-      font-size: 13px;
-      border: 1px solid #e8c4bc;
+    .day-card-header .day-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
     }
-    .tips-card li {
-      margin-bottom: 8px;
-      padding-left: 4px;
-    }
-    .tips-card li:last-child { margin-bottom: 0; }
-    .thursday-box {
-      background: #fff8e1;
-      border: 1.5px solid #f9ca24;
-      border-radius: var(--radius);
-      padding: 14px;
-      margin-top: 12px;
-    }
-    .thursday-box h4 {
-      font-size: 13px;
-      color: #e67e22;
-      margin-bottom: 10px;
-    }
-    .thursday-box h4::before { content: '⏰ '; }
-    .thursday-option {
-      background: #fff;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      font-size: 12.5px;
-      border: 1px solid var(--border);
-    }
-    .thursday-option:last-child { margin-bottom: 0; }
-    .thursday-option strong { color: var(--accent); }
-    .footer {
-      text-align: center;
+    .day-card-header .day-sub {
       font-size: 11px;
       color: var(--muted);
-      margin-top: 40px;
+      margin-top: 2px;
     }
-    @media (max-width: 480px) {
-      .week-table { font-size: 11.5px; }
-      .week-table th, .week-table td { padding: 8px 6px; }
-      .dish-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .thursday .day-card-header {
+      background: #fff8e1;
     }
+    .thursday .day-card-header .day-sub {
+      color: #e67e22;
+    }
+    .day-schedule-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: #f0ece6;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .thursday .day-schedule-badge {
+      background: #ffeaa7;
+      color: #d68910;
+    }
+
+    /* Dish list */
+    .dish-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dish-section:last-child { border-bottom: none; }
+    .dish-section-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .dish-section.soup .dish-section-header { color: var(--soup); }
+    .dish-section.main .dish-section-header { color: var(--main); }
+    .dish-section.veg .dish-section-header { color: var(--veg); }
+
+    .dish-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: 1.5px solid transparent;
+    }
+    .dish-row:hover {
+      background: #f8f5f2;
+      border-color: var(--border);
+    }
+    .dish-row.changed {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+    .dish-row .dish-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .soup .dish-icon { background: #fdebd0; }
+    .main .dish-icon { background: #d5f5e3; }
+    .veg .dish-icon { background: #d6eaf8; }
+    .dish-row .dish-name {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .dish-row .dish-action {
+      font-size: 11px;
+      color: var(--primary);
+      opacity: 0;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .dish-row:hover .dish-action { opacity: 1; }
+
+    /* Multi veg */
+    .dish-row .veg-index {
+      font-size: 10px;
+      color: var(--muted);
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Bottom Bar ── */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+    }
+    .bottom-bar .progress {
+      flex: 1;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .bottom-bar .progress strong {
+      color: var(--primary);
+      font-size: 15px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 24px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-ghost {
+      background: #f0ece6;
+      color: var(--accent);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #c4624a; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-sheet {
+      background: var(--card);
+      border-radius: 18px 18px 0 0;
+      width: 100%;
+      max-width: 600px;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding: 20px;
+      animation: slideUp 0.22s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .modal-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: #f0ece6;
+      font-size: 17px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .modal-dish-list { display: flex; flex-direction: column; gap: 7px; }
+    .modal-dish {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+    .modal-dish:hover { border-color: var(--primary); background: var(--primary-light); }
+    .modal-dish.current { border-color: var(--primary); background: var(--primary-light); }
+    .modal-dish .emoji { font-size: 18px; }
+    .modal-dish .name { flex: 1; }
+    .modal-dish .check { color: var(--primary); font-size: 15px; }
+    .modal-tip {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      padding: 8px 0 4px;
+    }
+
+    /* ── Confirmed Banner ── */
+    .confirmed-banner {
+      display: none;
+      background: linear-gradient(135deg, #e07a5f, #c4624a);
+      color: #fff;
+      text-align: center;
+      padding: 20px 16px;
+      margin: 14px 16px;
+      border-radius: 14px;
+    }
+    .confirmed-banner.show { display: block; }
+    .confirmed-banner h2 { font-size: 17px; margin-bottom: 4px; }
+    .confirmed-banner p { font-size: 12px; opacity: 0.8; }
+    .confirmed-banner .reedit-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 7px 18px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+    }
+    .confirmed-banner .reedit-btn:hover { background: rgba(255,255,255,0.3); }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>🍽️ 家庭一周菜单</h1>
-  <p>口味：姜蒜多 · 少油 · 汤汁多拌饭 · 少醋 · 果果爱软糯带汁</p>
+  <h1>🍽️ 本周菜单</h1>
+  <p>点击菜品可更换 · 确认后发给阿姨</p>
 </div>
 
-<!-- 常做菜分类库 -->
-<h3 class="section-title">常做菜分类库 · 每类选一个</h3>
-
-<div class="category-tabs" id="tabs">
-  <button class="tab-btn active" onclick="showTab('soup')">🥣 汤类</button>
-  <button class="tab-btn" onclick="showTab('steam')">🧊 蒸菜</button>
-  <button class="tab-btn" onclick="showTab('braise')">🍖 红烧/硬菜</button>
-  <button class="tab-btn" onclick="showTab('stir')">🥦 快手炒菜</button>
+<div class="confirmed-banner" id="confirmedBanner">
+  <h2>✅ 本周菜单已确认</h2>
+  <p id="confirmDateText"></p>
+  <button class="reedit-btn" onclick="editPlan()">重新编辑</button>
 </div>
 
-<div id="panels">
-  <div class="category-panel active" id="panel-soup">
-    <div class="dish-grid">
-      <div class="dish-card"><div class="emoji">🍅</div><div class="name">番茄榨菜汤</div></div>
-      <div class="dish-card"><div class="emoji">🥣</div><div class="name">山药排骨汤</div></div>
-      <div class="dish-card"><div class="emoji">🥬</div><div class="name">青菜肉丸粉丝汤</div></div>
-      <div class="dish-card"><div class="emoji">🌽</div><div class="name">玉米粉丝排骨汤</div></div>
-      <div class="dish-card"><div class="emoji">🎃</div><div class="name">冬瓜烩三鲜（虾丸）</div></div>
-      <div class="dish-card"><div class="emoji">🍅</div><div class="name">番茄金针菇肥牛锅</div></div>
-      <div class="dish-card"><div class="emoji">🍅</div><div class="name">番茄牛腩</div></div>
-      <div class="dish-card"><div class="emoji">🥬</div><div class="name">青菜三鲜汤</div></div>
-      <div class="dish-card"><div class="emoji">🥬</div><div class="name">白菜粉丝汤</div></div>
-      <div class="dish-card"><div class="emoji">🍄</div><div class="name">青菜香菇鸡肉汤</div></div>
+<div class="week-banner" id="weekBanner"></div>
+
+<div class="day-detail">
+  <div class="day-card" id="dayCard">
+    <div class="day-card-header">
+      <div>
+        <div class="day-title" id="dayTitle">周一</div>
+        <div class="day-sub" id="daySub">AI课 17:15</div>
+      </div>
+      <div class="day-schedule-badge" id="scheduleBadge">17:15 接送</div>
     </div>
-  </div>
-  <div class="category-panel" id="panel-steam">
-    <div class="dish-grid">
-      <div class="dish-card"><div class="emoji">🥚</div><div class="name">肉饼蒸蛋</div></div>
-      <div class="dish-card"><div class="emoji">🌭</div><div class="name">腊肠蒸蛋</div></div>
-      <div class="dish-card"><div class="emoji">🌭</div><div class="name">腊肠炖蛋</div></div>
-      <div class="dish-card"><div class="emoji">🐟</div><div class="name">清蒸鲈鱼</div></div>
-      <div class="dish-card"><div class="emoji">🐟</div><div class="name">梅干菜汪刺鱼</div></div>
-      <div class="dish-card"><div class="emoji">🐟</div><div class="name">雪菜汪刺鱼</div></div>
-      <div class="dish-card"><div class="emoji">🦀</div><div class="name">清蒸梭子蟹</div></div>
-    </div>
-  </div>
-  <div class="category-panel" id="panel-braise">
-    <div class="dish-grid">
-      <div class="dish-card"><div class="emoji">🍗</div><div class="name">红烧鸡翅</div></div>
-      <div class="dish-card"><div class="emoji">🥤</div><div class="name">可乐鸡翅</div></div>
-      <div class="dish-card"><div class="emoji">🍖</div><div class="name">糖醋排骨</div></div>
-      <div class="dish-card"><div class="emoji">🥘</div><div class="name">红烧肉＋土豆</div></div>
-      <div class="dish-card"><div class="emoji">🐷</div><div class="name">红烧猪蹄</div></div>
-      <div class="dish-card"><div class="emoji">🦐</div><div class="name">油爆罗氏虾</div></div>
-      <div class="dish-card"><div class="emoji">🍡</div><div class="name">糖醋罗氏虾</div></div>
-      <div class="dish-card"><div class="emoji">🦐</div><div class="name">鲜虾豆腐煲</div></div>
-      <div class="dish-card"><div class="emoji">🐄</div><div class="name">白切牛腱子</div></div>
-      <div class="dish-card"><div class="emoji">💧</div><div class="name">泉水牛肉</div></div>
-      <div class="dish-card"><div class="emoji">🐟</div><div class="name">三文鱼</div></div>
-      <div class="dish-card"><div class="emoji">🐟</div><div class="name">糖醋鲤鱼</div></div>
-    </div>
-  </div>
-  <div class="category-panel" id="panel-stir">
-    <div class="dish-grid">
-      <div class="dish-card"><div class="emoji">🥩</div><div class="name">鱼香肉丝</div></div>
-      <div class="dish-card"><div class="emoji">🦑</div><div class="name">雪菜炒鱿鱼</div></div>
-      <div class="dish-card"><div class="emoji">🌱</div><div class="name">韭菜笋丝</div></div>
-      <div class="dish-card"><div class="emoji">🥔</div><div class="name">炒土豆丝</div></div>
-      <div class="dish-card"><div class="emoji">🥔</div><div class="name">塌扁小土豆</div></div>
-      <div class="dish-card"><div class="emoji">🥔</div><div class="name">红烧土豆</div></div>
-      <div class="dish-card"><div class="emoji">🥬</div><div class="name">蒜蓉粉丝娃娃菜</div></div>
-      <div class="dish-card"><div class="emoji">🥬</div><div class="name">上汤白菜</div></div>
-      <div class="dish-card"><div class="emoji">🥬</div><div class="name">清炒鸡毛菜</div></div>
-      <div class="dish-card"><div class="emoji">🥦</div><div class="name">西兰花清炒</div></div>
-      <div class="dish-card"><div class="emoji">🪷</div><div class="name">清炒藕片</div></div>
-      <div class="dish-card"><div class="emoji">🎋</div><div class="name">油焖茭白</div></div>
-      <div class="dish-card"><div class="emoji">🫘</div><div class="name">毛豆烧豆腐</div></div>
-      <div class="dish-card"><div class="emoji">🥒</div><div class="name">凉拌黄瓜</div></div>
-    </div>
+    <div id="dishSections"></div>
   </div>
 </div>
 
-<!-- 一周排期 -->
-<h3 class="section-title">一周排期</h3>
-
-<table class="week-table">
-  <thead>
-    <tr>
-      <th>星期</th>
-      <th>汤</th>
-      <th>主荤 / 蒸菜</th>
-      <th>炒菜</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td class="day">周一<br><span style="font-size:10px;color:#e07a5f">AI 17:15</span></td>
-      <td class="soup">山药排骨汤<br><small>（加胡萝卜）</small></td>
-      <td class="main-dish">红烧鸡翅</td>
-      <td>雪菜炒鱿鱼<br>清炒鸡毛菜<br><span class="note">排骨早上先焯好</span></td>
-    </tr>
-    <tr>
-      <td class="day">周二<br><span style="font-size:10px;color:#e07a5f">篮球 17:15</span></td>
-      <td class="soup">番茄榨菜汤</td>
-      <td class="main-dish">糖醋排骨</td>
-      <td>西兰花炒虾仁<br>凉拌黄瓜<br><span class="note">排骨可周一多烧</span></td>
-    </tr>
-    <tr>
-      <td class="day">周三<br><span style="font-size:10px;color:#e07a5f">乐高 17:15</span></td>
-      <td class="soup">青菜肉丸粉丝汤</td>
-      <td class="main-dish">清蒸鲈鱼<br>肉饼蒸蛋<br><span class="note">两蒸菜同锅最省力</span></td>
-      <td>蒜蓉粉丝娃娃菜</td>
-    </tr>
-    <tr style="background:#fef9e7">
-      <td class="day">周四<br><span style="font-size:10px;color:#e07a5f">16:00放学<br>18:30英语</span></td>
-      <td class="soup">番茄金针菇肥牛<br><small>（一锅出）</small></td>
-      <td class="main-dish">腊肠蒸蛋</td>
-      <td>清炒青菜<br><span class="note">20分钟内开饭，见下方快手方案</span></td>
-    </tr>
-    <tr>
-      <td class="day">周五<br><span style="font-size:10px;color:#e07a5f">羽毛球 17:15</span></td>
-      <td class="soup">玉米粉丝排骨汤</td>
-      <td class="main-dish">可乐鸡翅<br><span class="note">可多做留周六</span></td>
-      <td>鱼香肉丝<br>上汤白菜</td>
-    </tr>
-    <tr>
-      <td class="day">周六<br><span style="font-size:10px;color:#27ae60">在家可费时</span></td>
-      <td class="soup">冬瓜烩三鲜<br>或番茄牛腩</td>
-      <td class="main-dish">红烧猪蹄<br><span class="note">分装冷冻，3-4天吃完</span></td>
-      <td>油焖茭白<br>凉拌黄瓜花生</td>
-    </tr>
-    <tr>
-      <td class="day">周日<br><span style="font-size:10px;color:#888">备餐+清冰箱</span></td>
-      <td class="soup">番茄榨菜汤</td>
-      <td class="main-dish">红烧肉土豆<br>或三文鱼</td>
-      <td>清炒藕片<br>香菇青菜<br><span class="note">清空冰箱剩料</span></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- 周四快手方案 -->
-<div class="thursday-box">
-  <h4>周四快手方案（20分钟内开饭）</h4>
-  <div class="thursday-option">
-    <strong>方案A · 课前吃：</strong>番茄金针菇肥牛一锅煮 ＋ 腊肠蒸蛋（饭上锅时一起蒸）＋ 清炒青菜，17:30前上桌，吃完去上课。
+<!-- Bottom bar -->
+<div class="bottom-bar" id="bottomBar">
+  <div class="progress">
+    已选 <strong id="changedCount">0</strong> 道菜已修改
   </div>
-  <div class="thursday-option">
-    <strong>方案B · 课后吃：</strong>下午先把汤或红烧菜炖好保温，课后回家只炒一个青菜＋热饭，10分钟上桌。
-  </div>
-  <div class="thursday-option">
-    <strong>备用兜底：</strong>冰箱常备馄饨／面条＋肉丸，实在来不及就煮一碗，比等菜快。
-  </div>
+  <button class="btn btn-ghost" onclick="randomAll()">🎲 换一批</button>
+  <button class="btn btn-primary" onclick="confirmPlan()">确认菜单</button>
 </div>
 
-<!-- 给阿姨的固定提醒 -->
-<h3 class="section-title">给阿姨的固定提醒</h3>
-<div class="tips-card">
-  <ul>
-    <li>姜蒜多放、整体少油；红烧类汤汁留多一点，方便拌饭。</li>
-    <li>当天菜尽量全部做掉，剩菜一律不留到第二天；凉拌黄瓜、皮皮虾、清蒸鱼必须当天吃完。</li>
-    <li>猪蹄、红烧肉一次做多就分装冷冻，解冻后3–4天内吃完，别再反复加热。</li>
-    <li>海鲜（鲈鱼、罗氏虾、梭子蟹）当天买当天做，不买就多做一个蒸蛋或豆腐补上。</li>
-    <li>每周至少擦一次冰箱和锅具（蒸烤一体机顶部焦渍用热水泡，红锅不用清洁球）。</li>
-    <li>接送日（周一二三五17:15、周四16:00）：<strong>16:30前把菜备好、米先下锅</strong>，回来直接开火。</li>
-  </ul>
-</div>
-
-<div class="footer">
-  周四坚决不排：整鱼、猪蹄、长时间炖汤、皮皮虾等现做现吃的海鲜
+<!-- Dish picker modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3 id="modalTitle">选择菜品</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-dish-list" id="modalList"></div>
+    <div class="modal-tip">点击选中，再点其他可继续更换</div>
+  </div>
 </div>
 
 <script>
-  function showTab(name) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    event.target.classList.add('active');
+// ── DATA ─────────────────────────────────────────────────────
+const DISHES = {
+  soup: [
+    {n:'番茄榨菜汤', e:'🍅'},
+    {n:'山药排骨汤', e:'🥣'},
+    {n:'青菜肉丸粉丝汤', e:'🥬'},
+    {n:'玉米粉丝排骨汤', e:'🌽'},
+    {n:'番茄金针菇肥牛锅', e:'🍅'},
+    {n:'番茄牛腩', e:'🍅'},
+    {n:'青菜三鲜汤', e:'🥬'},
+    {n:'白菜粉丝汤', e:'🥬'},
+    {n:'青菜香菇鸡肉汤', e:'🍄'},
+    {n:'冬瓜烩三鲜（虾丸）', e:'🎃'},
+  ],
+  main: [
+    {n:'红烧鸡翅', e:'🍗'},
+    {n:'可乐鸡翅', e:'🥤'},
+    {n:'糖醋排骨', e:'🍖'},
+    {n:'红烧肉+土豆', e:'🥘'},
+    {n:'红烧猪蹄', e:'🐷'},
+    {n:'油爆罗氏虾', e:'🦐'},
+    {n:'糖醋罗氏虾', e:'🦐'},
+    {n:'鲜虾豆腐煲', e:'🦐'},
+    {n:'白切牛腱子', e:'🐄'},
+    {n:'泉水牛肉', e:'💧'},
+    {n:'三文鱼', e:'🐟'},
+    {n:'清蒸鲈鱼', e:'🐟'},
+    {n:'梅干菜汪刺鱼', e:'🐟'},
+    {n:'雪菜汪刺鱼', e:'🐟'},
+    {n:'腊肠蒸蛋', e:'🌭'},
+    {n:'腊肠炖蛋', e:'🌭'},
+    {n:'肉饼蒸蛋', e:'🥚'},
+    {n:'清蒸梭子蟹', e:'🦀'},
+  ],
+  veg: [
+    {n:'鱼香肉丝', e:'🥩'},
+    {n:'雪菜炒鱿鱼', e:'🦑'},
+    {n:'韭菜笋丝', e:'🌱'},
+    {n:'炒土豆丝', e:'🥔'},
+    {n:'塌扁小土豆', e:'🥔'},
+    {n:'红烧土豆', e:'🥔'},
+    {n:'蒜蓉粉丝娃娃菜', e:'🥬'},
+    {n:'上汤白菜', e:'🥬'},
+    {n:'清炒鸡毛菜', e:'🥬'},
+    {n:'西兰花清炒', e:'🥦'},
+    {n:'清炒藕片', e:'🪷'},
+    {n:'油焖茭白', e:'🎋'},
+    {n:'毛豆烧豆腐', e:'🫘'},
+    {n:'凉拌黄瓜', e:'🥒'},
+    {n:'香菇青菜', e:'🍄'},
+  ]
+};
+
+const DISH_ICONS = {};
+[...DISHES.soup, ...DISHES.main, ...DISHES.veg].forEach(d => DISH_ICONS[d.n] = d.e);
+
+const DAYS = [
+  {key:'Mon', label:'一', sub:'AI课 17:15', badge:'17:15 接送'},
+  {key:'Tue', label:'二', sub:'篮球 17:15', badge:'17:15 接送'},
+  {key:'Wed', label:'三', sub:'乐高 17:15', badge:'17:15 接送'},
+  {key:'Thu', label:'四', sub:'16:00放学·英语课18:30', badge:'18:00前吃完', thursday:true},
+  {key:'Fri', label:'五', sub:'羽毛球 17:15', badge:'17:15 接送'},
+];
+
+// ── STATE ─────────────────────────────────────────────────────
+let plan = {
+  Mon: { soup:'山药排骨汤（加胡萝卜）', main:'红烧鸡翅', veg:['雪菜炒鱿鱼','清炒鸡毛菜'] },
+  Tue: { soup:'番茄榨菜汤', main:'糖醋排骨', veg:['西兰花炒虾仁','凉拌黄瓜'] },
+  Wed: { soup:'青菜肉丸粉丝汤', main:'清蒸鲈鱼', veg:['蒜蓉粉丝娃娃菜'] },
+  Thu: { soup:'番茄金针菇肥牛（一锅出）', main:'腊肠蒸蛋', veg:['清炒青菜'] },
+  Fri: { soup:'玉米粉丝排骨汤', main:'可乐鸡翅', veg:['鱼香肉丝','上汤白菜'] },
+};
+
+// 默认值（用于判断是否被改过）
+const defaults = JSON.stringify(plan);
+let confirmed = false;
+let currentDay = 'Mon';
+let currentSlot = null;
+let currentVegIdx = null;
+let changedCount = 0;
+
+// ── INIT ──────────────────────────────────────────────────────
+function render() {
+  renderBanner();
+  renderDay();
+  renderBottom();
+}
+
+function renderBanner() {
+  const banner = document.getElementById('weekBanner');
+  banner.innerHTML = DAYS.map(d => `
+    <div class="day-tab ${d.thursday ? 'thursday' : ''} ${currentDay === d.key ? 'active' : ''}"
+         onclick="selectDay('${d.key}')">
+      <div class="day-num">周${d.label}</div>
+      <div class="day-label">${d.thursday ? '⚡赶课' : ''}</div>
+    </div>
+  `).join('');
+}
+
+function renderDay() {
+  const d = DAYS.find(x => x.key === currentDay);
+  const p = plan[currentDay];
+  const isThursday = d.thursday;
+
+  document.getElementById('dayTitle').textContent = `周${d.label}`;
+  document.getElementById('daySub').textContent = d.sub;
+  document.getElementById('scheduleBadge').textContent = d.badge;
+
+  const card = document.getElementById('dayCard');
+  card.className = `day-card${isThursday ? ' thursday' : ''}${confirmed ? ' confirmed' : ''}`;
+
+  const sections = document.getElementById('dishSections');
+  const icon = (name) => DISH_ICONS[name] || '🍽️';
+
+  sections.innerHTML = `
+    <div class="dish-section soup">
+      <div class="dish-section-header">🥣 汤</div>
+      ${renderDishRow('soup', p.soup, 0)}
+    </div>
+    <div class="dish-section main">
+      <div class="dish-section-header">🍖 主荤 / 蒸菜</div>
+      ${renderDishRow('main', p.main, 0)}
+    </div>
+    <div class="dish-section veg">
+      <div class="dish-section-header">🥦 炒菜</div>
+      ${p.veg.map((v, i) => renderDishRow('veg', v, i)).join('')}
+    </div>
+  `;
+}
+
+function renderDishRow(type, name, vegIdx) {
+  const icon = DISH_ICONS[name] || '🍽️';
+  return `
+    <div class="dish-row ${type}" onclick="openPicker('${type}', ${vegIdx})">
+      <div class="dish-icon">${icon}</div>
+      <div class="dish-name">${name}</div>
+      <div class="dish-action">更换 ✎</div>
+    </div>
+  `;
+}
+
+function renderBottom() {
+  const card = document.getElementById('dayCard');
+  const changed = JSON.stringify(plan) !== defaults;
+  document.getElementById('changedCount').textContent = changed ? '✓' : '0';
+  document.getElementById('confirmedBanner').classList.toggle('show', confirmed);
+  document.getElementById('bottomBar').style.display = confirmed ? 'none' : 'flex';
+}
+
+// ── PICKER ─────────────────────────────────────────────────────
+function openPicker(type, vegIdx) {
+  if (confirmed) return;
+  currentSlot = type;
+  currentVegIdx = vegIdx;
+  const current = type === 'veg' ? plan[currentDay].veg[vegIdx] : plan[currentDay][type];
+  const label = {soup:'🥣 汤', main:'🍖 主荤/蒸菜', veg:'🥦 炒菜'}[type];
+
+  document.getElementById('modalTitle').textContent = `${currentDay} · ${label}`;
+  document.getElementById('modalList').innerHTML = DISHES[type].map(d => `
+    <div class="modal-dish ${d.n === current ? 'current' : ''}" onclick="selectDish('${d.n}')">
+      <span class="emoji">${d.e}</span>
+      <span class="name">${d.n}</span>
+      ${d.n === current ? '<span class="check">✓</span>' : ''}
+    </div>
+  `).join('');
+  document.getElementById('modal').classList.add('show');
+}
+
+function selectDish(name) {
+  if (currentSlot === 'veg') {
+    plan[currentDay].veg[currentVegIdx] = name;
+  } else {
+    plan[currentDay][currentSlot] = name;
   }
+  closeModal();
+  renderDay();
+  renderBottom();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  currentSlot = null;
+  currentVegIdx = null;
+}
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+
+// ── ACTIONS ─────────────────────────────────────────────────────
+function selectDay(key) {
+  currentDay = key;
+  render();
+}
+
+function randomAll() {
+  DAYS.forEach(day => {
+    plan[day.key].soup = DISHES.soup[rand(DISHES.soup.length)].n;
+    plan[day.key].main = DISHES.main[rand(DISHES.main.length)].n;
+    plan[day.key].veg = [
+      DISHES.veg[rand(DISHES.veg.length)].n,
+      DISHES.veg[rand(DISHES.veg.length)].n,
+    ];
+  });
+  currentDay = 'Mon';
+  render();
+}
+
+function rand(n) { return Math.floor(Math.random() * n); }
+
+function confirmPlan() {
+  confirmed = true;
+  document.getElementById('confirmDateText').textContent =
+    `确认时间：${new Date().toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+  render();
+}
+
+function editPlan() {
+  confirmed = false;
+  render();
+}
+
+render();
 </script>
 
 </body>
